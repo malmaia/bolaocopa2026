@@ -7,8 +7,8 @@ export interface Game {
   awayTeam: string
   homeFlag: string
   awayFlag: string
-  date: string   // "YYYY-MM-DD"
-  time: string   // "HH:MM" (horário de Brasília)
+  date: string
+  time: string
   venue: string
   group: string
   phase: Phase
@@ -20,20 +20,20 @@ export interface GameBet {
   awayScore: number | null
 }
 
-// Criando o atalho "Bet" para o BetForm não dar erro
-export type Bet = GameBet
+// ESSA LINHA É A QUE CORRIGE O ERRO:
+export type Bet = GameBet 
 
 export interface GroupPrediction {
-  first: string   // nome da seleção
-  second: string  // nome da seleção
+  first: string
+  second: string
 }
 
 export interface SpecialBets {
   champion: string
   runnerUp: string
-  topScorer: string   // nome do jogador
-  bestPlayer: string  // nome do jogador
-  lastPlace: string   // nome da seleção
+  topScorer: string
+  bestPlayer: string
+  lastPlace: string
 }
 
 export interface PlayerBets {
@@ -44,12 +44,12 @@ export interface PlayerBets {
 
 export interface AllBets {
   playerName: string
-  gameBets: Record<string, GameBet>                   // key: gameId
-  groupPredictions: Record<string, GroupPrediction>   // key: "Grupo A", etc.
-  thirdPlace: string[]   // 8 seleções 3ªs colocadas que avançam
-  oitavas: string[]      // 16 seleções nas oitavas
-  quartas: string[]      // 8 seleções nas quartas
-  semi: string[]         // 4 semifinalistas
+  gameBets: Record<string, GameBet>
+  groupPredictions: Record<string, GroupPrediction>
+  thirdPlace: string[]
+  oitavas: string[]
+  quartas: string[]
+  semi: string[]
   specials: Partial<SpecialBets>
   savedAt: string
 }
