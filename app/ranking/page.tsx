@@ -8,6 +8,21 @@ import { GAMES } from '@/lib/games-data'
 
 const STORAGE_KEY = 'bolao2026_v2'
 
+const TEAM_CODES: Record<string, string> = {
+  'México': 'mx', 'África do Sul': 'za', 'Coreia do Sul': 'kr', 'Tchéquia': 'cz',
+  'Canadá': 'ca', 'Gana': 'gh', 'Suécia': 'se', 'Peru': 'pe',
+  'EUA': 'us', 'Nigéria': 'ng', 'Noruega': 'no', 'Arábia Saudita': 'sa',
+  'Brasil': 'br', 'Camarões': 'cm', 'Suíça': 'ch', 'Costa Rica': 'cr',
+  'Argentina': 'ar', 'Argélia': 'dz', 'Polônia': 'pl', 'Chile': 'cl',
+  'França': 'fr', 'Egito': 'eg', 'Austrália': 'au', 'Jamaica': 'jm',
+  'Espanha': 'es', 'Tunísia': 'tn', 'Japão': 'jp', 'Colômbia': 'co',
+  'Inglaterra': 'gb-eng', 'Mali': 'ml', 'Áustria': 'at', 'Equador': 'ec',
+  'Bélgica': 'be', 'Marrocos': 'ma', 'Turquia': 'tr', 'Paraguai': 'py',
+  'Portugal': 'pt', 'Costa do Marfim': 'ci', 'Sérvia': 'rs', 'Panamá': 'pa',
+  'Itália': 'it', 'Senegal': 'sn', 'Dinamarca': 'dk', 'Uruguai': 'uy',
+  'Alemanha': 'de', 'Irã': 'ir', 'Holanda': 'nl', 'Uzbequistão': 'uz'
+};
+
 export default function RankingPage() {
   const [bets, setBets] = useState<AllBets | null>(null)
   const [loaded, setLoaded] = useState(false)
@@ -15,14 +30,12 @@ export default function RankingPage() {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
-      try {
-        setBets(JSON.parse(stored))
-      } catch {
-        // ignore
-      }
+      try { setBets(JSON.parse(stored)) } catch { }
     }
     setLoaded(true)
   }, [])
+
+  const getFlagUrl = (name: string) => `https://flagcdn.com/w40/${TEAM_CODES[name] || 'un'}.png`;
 
   if (!loaded) return null
 
@@ -31,13 +44,10 @@ export default function RankingPage() {
       <>
         <Header />
         <main className="max-w-2xl mx-auto px-4 py-16 text-center">
-          <p className="text-5xl mb-4">⚽</p>
-          <p className="text-gray-600 text-lg mb-6">Nenhum palpite salvo ainda.</p>
-          <Link
-            href="/"
-            className="bg-green-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-green-800 transition-colors"
-          >
-            Preencher cartela
+          <p className="text-6xl mb-4">⚽</p>
+          <p className="text-black font-black text-xl mb-6">NENHUM PALPITE SALVO AINDA.</p>
+          <Link href="/" className="bg-green-700 text-white px-8 py-4 rounded-xl font-black hover:bg-green-800 transition-all">
+            PREENCHER MINHA CARTELA
           </Link>
         </main>
       </>
@@ -45,136 +55,71 @@ export default function RankingPage() {
   }
 
   const groupGames = GAMES.filter(g => g.phase === 'grupo')
-  const filledGames = groupGames.filter(g => {
-    const b = bets.gameBets[g.id]
-    return b?.homeScore !== null && b?.awayScore !== null
-  })
-
-  const savedDate = new Date(bets.savedAt).toLocaleString('pt-BR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  })
-
-  const groups = [...new Set(groupGames.map(g => g.group))]
 
   return (
     <>
       <Header />
-      <main className="max-w-2xl mx-auto px-4 py-6 pb-20">
-
-        {/* Card do participante */}
-        <div className="bg-green-700 text-white rounded-xl p-5 mb-6 shadow-md">
-          <p className="text-2xl font-bold">{bets.playerName || '—'}</p>
-          <div className="flex items-center justify-between mt-2">
-            <p className="text-green-200 text-sm">
-              {filledGames.length}/{groupGames.length} jogos · {[
-                bets.specials.champion,
-                bets.specials.runnerUp,
-                bets.specials.topScorer,
-                bets.specials.bestPlayer,
-                bets.specials.lastPlace,
-              ].filter(Boolean).length}/5 especiais
-            </p>
-            <p className="text-green-300 text-xs">{savedDate}</p>
-          </div>
-          <div className="mt-3 bg-green-800 rounded-full h-1.5 overflow-hidden">
-            <div
-              className="bg-white h-1.5 rounded-full"
-              style={{ width: `${Math.round((filledGames.length / Math.max(groupGames.length, 1)) * 100)}%` }}
-            />
-          </div>
+      <main className="max-w-2xl mx-auto px-4 py-8 pb-20">
+        <div className="bg-white rounded-2xl border-4 border-green-700 p-6 mb-8 shadow-xl">
+          <h2 className="text-[10px] font-black text-green-700 uppercase tracking-widest mb-1">Participante</h2>
+          <p className="text-3xl font-black text-black uppercase">{bets.playerName || 'Sem Nome'}</p>
         </div>
 
-        {/* Palpites dos jogos */}
-        <h2 className="text-base font-bold text-gray-700 mb-4">Placares — 1ª Fase</h2>
-        {groups.map(group => (
-          <div key={group} className="mb-6">
-            <h3 className="text-sm font-bold text-gray-600 mb-2 flex items-center gap-2">
-              <span className="text-green-600">▸</span>{group}
-            </h3>
-            <div className="space-y-2">
-              {groupGames.filter(g => g.group === group).map(game => {
+        <div className="space-y-6">
+          <section>
+            <h3 className="text-xl font-black text-black uppercase mb-4 flex items-center gap-2">🏆 Apostas Especiais</h3>
+            <div className="bg-white rounded-xl border-2 border-gray-300 divide-y-2 divide-gray-100">
+              <Row label="Campeão" value={bets.specials.champion} flag={getFlagUrl(bets.specials.champion || '')} />
+              <Row label="Vice-Campeão" value={bets.specials.runnerUp} flag={getFlagUrl(bets.specials.runnerUp || '')} />
+              <Row label="Goleador" value={bets.specials.topScorer} isPlayer />
+              <Row label="Melhor Jogador" value={bets.specials.bestPlayer} isPlayer />
+            </div>
+          </section>
+
+          <section>
+            <h3 className="text-xl font-black text-black uppercase mb-4 flex items-center gap-2">📅 Meus Placares</h3>
+            <div className="grid grid-cols-1 gap-3">
+              {groupGames.map(game => {
                 const bet = bets.gameBets[game.id]
-                const hasBet = bet?.homeScore !== null && bet?.awayScore !== null && bet !== undefined
+                if (!bet) return null
                 return (
-                  <div
-                    key={game.id}
-                    className={`bg-white rounded-xl border p-3 ${
-                      hasBet ? 'border-gray-200' : 'border-dashed border-gray-200 opacity-50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 flex items-center justify-end gap-1.5 min-w-0">
-                        <span className="text-sm font-medium text-gray-900 truncate">{game.homeTeam}</span>
-                        <span>{game.homeFlag}</span>
-                      </div>
-                      <div className="w-20 text-center flex-shrink-0">
-                        {hasBet ? (
-                          <span className="font-bold text-gray-900">{bet.homeScore} × {bet.awayScore}</span>
-                        ) : (
-                          <span className="text-gray-400 text-xs italic">sem palpite</span>
-                        )}
-                      </div>
-                      <div className="flex-1 flex items-center gap-1.5 min-w-0">
-                        <span>{game.awayFlag}</span>
-                        <span className="text-sm font-medium text-gray-900 truncate">{game.awayTeam}</span>
-                      </div>
+                  <div key={game.id} className="bg-white p-3 rounded-xl border-2 border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center gap-2 flex-1 justify-end">
+                      <span className="text-xs font-bold text-black truncate">{game.homeTeam}</span>
+                      <img src={getFlagUrl(game.homeTeam)} className="w-6 h-4 border border-gray-100" />
+                    </div>
+                    <div className="mx-4 bg-gray-100 px-3 py-1 rounded-lg font-black text-black text-lg">
+                      {bet.homeScore} × {bet.awayScore}
+                    </div>
+                    <div className="flex items-center gap-2 flex-1">
+                      <img src={getFlagUrl(game.awayTeam)} className="w-6 h-4 border border-gray-100" />
+                      <span className="text-xs font-bold text-black truncate">{game.awayTeam}</span>
                     </div>
                   </div>
                 )
               })}
             </div>
-          </div>
-        ))}
+          </section>
+        </div>
 
-        {/* Especiais */}
-        {Object.values(bets.specials).some(Boolean) && (
-          <div className="mt-6">
-            <h2 className="text-base font-bold text-gray-700 mb-4">Apostas especiais</h2>
-            <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-              {bets.specials.champion && (
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-500">🥇 Campeão</span>
-                  <span className="text-sm font-semibold text-gray-900">{bets.specials.champion}</span>
-                </div>
-              )}
-              {bets.specials.runnerUp && (
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-500">🥈 Vice-campeão</span>
-                  <span className="text-sm font-semibold text-gray-900">{bets.specials.runnerUp}</span>
-                </div>
-              )}
-              {bets.specials.topScorer && (
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-500">⚽ Goleador</span>
-                  <span className="text-sm font-semibold text-gray-900">{bets.specials.topScorer}</span>
-                </div>
-              )}
-              {bets.specials.bestPlayer && (
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-500">⭐ Melhor jogador</span>
-                  <span className="text-sm font-semibold text-gray-900">{bets.specials.bestPlayer}</span>
-                </div>
-              )}
-              {bets.specials.lastPlace && (
-                <div className="flex items-center justify-between px-4 py-3">
-                  <span className="text-sm text-gray-500">🔴 Último colocado</span>
-                  <span className="text-sm font-semibold text-gray-900">{bets.specials.lastPlace}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 text-center">
-          <Link
-            href="/"
-            className="inline-block bg-green-700 text-white px-8 py-3 rounded-xl font-semibold hover:bg-green-800 transition-colors"
-          >
-            Editar cartela
+        <div className="mt-10 text-center">
+          <Link href="/" className="inline-block bg-black text-white px-10 py-4 rounded-xl font-black hover:bg-gray-800 uppercase">
+            Editar minha cartela
           </Link>
         </div>
       </main>
     </>
+  )
+}
+
+function Row({ label, value, flag, isPlayer }: any) {
+  return (
+    <div className="flex items-center justify-between px-4 py-4">
+      <span className="text-xs font-black text-gray-500 uppercase">{label}</span>
+      <div className="flex items-center gap-2">
+        {flag && !isPlayer && <img src={flag} className="w-6 h-4 border border-gray-100" />}
+        <span className="text-base font-black text-black uppercase">{value || '---'}</span>
+      </div>
+    </div>
   )
 }

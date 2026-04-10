@@ -3,24 +3,23 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { GAMES } from '@/lib/games-data'
-import { Bet, PlayerBets } from '@/lib/types'
+import { GameBet, PlayerBets } from '@/lib/types'
 import GameCard from './GameCard'
 
 const STORAGE_KEY = 'bolao2026_bets'
 
 export default function BetForm() {
   const [playerName, setPlayerName] = useState('')
-  const [bets, setBets] = useState<Record<string, Bet>>({})
+  const [bets, setBets] = useState<Record<string, GameBet>>({})
   const [saved, setSaved] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
-  // Carrega palpites salvos ao iniciar
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const data: PlayerBets = JSON.parse(stored)
       setPlayerName(data.playerName)
-      const betsMap: Record<string, Bet> = {}
+      const betsMap: Record<string, GameBet> = {}
       data.bets.forEach(b => {
         betsMap[b.gameId] = b
       })
@@ -39,69 +38,47 @@ export default function BetForm() {
         awayScore: field === 'awayScore' ? numValue : (prev[gameId]?.awayScore ?? null),
       },
     }))
-    setSaved(false)
   }
 
   function handleSave() {
-    if (!playerName.trim()) {
-      alert('Digite seu nome antes de salvar!')
-      return
-    }
-    const playerBets: PlayerBets = {
-      playerName: playerName.trim(),
-      bets: Object.values(bets),
-      savedAt: new Date().toISOString(),
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(playerBets))
+    const betsArray = Object.values(bets)
+    const data: PlayerBets = { playerName, bets: betsArray, savedAt: new Date().toISOString() }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    setTimeout(() => setSaved(false), 2000)
   }
-
-  const filledCount = Object.values(bets).filter(
-    b => b.homeScore !== null && b.awayScore !== null
-  ).length
-
-  // Agrupa jogos por grupo
-  const groups = [...new Set(GAMES.map(g => g.group))]
 
   if (!loaded) return null
 
+  const groups = [...new Set(GAMES.filter(g => g.phase === 'grupo').map(g => g.group))]
+  const filledCount = Object.values(bets).filter(b => b.homeScore !== null && b.awayScore !== null).length
+
   return (
-    <div>
-      {/* Nome do participante */}
-      <div className="mb-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
-          Seu nome no bolão
-        </label>
+    <div className="max-w-2xl mx-auto px-4 py-8 pb-24">
+      <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 mb-8 shadow-sm">
+        <label className="block text-sm font-bold text-gray-700 mb-2 uppercase">Seu Nome</label>
         <input
           type="text"
           value={playerName}
-          onChange={e => {
-            setPlayerName(e.target.value)
-            setSaved(false)
-          }}
+          onChange={e => setPlayerName(e.target.value)}
           placeholder="Ex: João Silva"
-          className="w-full max-w-xs px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
+          className="w-full p-3 text-lg font-bold border-2 border-gray-300 rounded-xl focus:border-green-500 outline-none text-black"
         />
       </div>
 
-      {/* Progresso */}
-      <div className="mb-6 flex items-center justify-between text-sm text-gray-500">
-        <span>
-          <span className="font-semibold text-green-700">{filledCount}</span> de{' '}
-          <span className="font-semibold">{GAMES.length}</span> jogos palpitados
+      <div className="flex items-center justify-between mb-6 px-1">
+        <span className="text-sm text-gray-500 font-bold">
+          <span className="text-green-700">{filledCount}</span> de {GAMES.length} jogos palpitados
         </span>
-        <Link href="/ranking" className="text-green-700 font-medium hover:underline">
+        <Link href="/ranking" className="text-green-700 font-black hover:underline uppercase text-xs">
           Ver meus palpites →
         </Link>
       </div>
 
-      {/* Jogos agrupados */}
       {groups.map(group => (
         <div key={group} className="mb-8">
-          <h2 className="text-base font-bold text-gray-700 mb-3 pb-2 border-b-2 border-green-500 flex items-center gap-2">
-            <span className="text-green-600">▸</span>
-            {group}
+          <h2 className="text-base font-black text-black mb-3 pb-2 border-b-2 border-green-500 uppercase flex items-center gap-2">
+            <span className="text-green-600">▸</span> {group}
           </h2>
           <div className="space-y-3">
             {GAMES.filter(g => g.group === group).map(game => (
@@ -116,17 +93,14 @@ export default function BetForm() {
         </div>
       ))}
 
-      {/* Botão salvar fixo na base */}
-      <div className="sticky bottom-4 mt-4 pb-2">
+      <div className="fixed bottom-6 left-4 right-4 max-w-2xl mx-auto z-50">
         <button
           onClick={handleSave}
-          className={`w-full py-4 font-bold text-base rounded-xl shadow-lg transition-all ${
-            saved
-              ? 'bg-green-500 text-white scale-[0.99]'
-              : 'bg-green-700 text-white hover:bg-green-800 active:scale-[0.99]'
+          className={`w-full py-4 font-black text-lg rounded-2xl shadow-2xl transition-all ${
+            saved ? 'bg-green-500 text-white' : 'bg-green-700 text-white hover:bg-green-800'
           }`}
         >
-          {saved ? '✓ Palpites salvos com sucesso!' : 'Salvar palpites'}
+          {saved ? '✓ PALPITES SALVOS!' : 'SALVAR MINHA CARTELA'}
         </button>
       </div>
     </div>

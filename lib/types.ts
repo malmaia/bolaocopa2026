@@ -20,6 +20,9 @@ export interface GameBet {
   awayScore: number | null
 }
 
+// Criando o atalho "Bet" para o BetForm não dar erro
+export type Bet = GameBet
+
 export interface GroupPrediction {
   first: string   // nome da seleção
   second: string  // nome da seleção
@@ -31,6 +34,12 @@ export interface SpecialBets {
   topScorer: string   // nome do jogador
   bestPlayer: string  // nome do jogador
   lastPlace: string   // nome da seleção
+}
+
+export interface PlayerBets {
+  playerName: string
+  bets: Bet[]
+  savedAt: string
 }
 
 export interface AllBets {

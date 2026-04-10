@@ -6,71 +6,58 @@ interface Props {
   onBetChange: (gameId: string, field: 'homeScore' | 'awayScore', value: string) => void
 }
 
-function formatDate(dateStr: string, time: string): string {
-  const [year, month, day] = dateStr.split('-').map(Number)
-  const date = new Date(year, month - 1, day)
-  const weekday = date.toLocaleDateString('pt-BR', { weekday: 'short' })
-  const dayMonth = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
-  return `${weekday}, ${dayMonth} • ${time}h`
-}
+const TEAM_CODES: Record<string, string> = {
+  'México': 'mx', 'África do Sul': 'za', 'Coreia do Sul': 'kr', 'Tchéquia': 'cz',
+  'Canadá': 'ca', 'Gana': 'gh', 'Suécia': 'se', 'Peru': 'pe',
+  'EUA': 'us', 'Nigéria': 'ng', 'Noruega': 'no', 'Arábia Saudita': 'sa',
+  'Brasil': 'br', 'Camarões': 'cm', 'Suíça': 'ch', 'Costa Rica': 'cr',
+  'Argentina': 'ar', 'Argélia': 'dz', 'Polônia': 'pl', 'Chile': 'cl',
+  'França': 'fr', 'Egito': 'eg', 'Austrália': 'au', 'Jamaica': 'jm',
+  'Espanha': 'es', 'Tunísia': 'tn', 'Japão': 'jp', 'Colômbia': 'co',
+  'Inglaterra': 'gb-eng', 'Mali': 'ml', 'Áustria': 'at', 'Equador': 'ec',
+  'Bélgica': 'be', 'Marrocos': 'ma', 'Turquia': 'tr', 'Paraguai': 'py',
+  'Portugal': 'pt', 'Costa do Marfim': 'ci', 'Sérvia': 'rs', 'Panamá': 'pa',
+  'Itália': 'it', 'Senegal': 'sn', 'Dinamarca': 'dk', 'Uruguai': 'uy',
+  'Alemanha': 'de', 'Irã': 'ir', 'Holanda': 'nl', 'Uzbequistão': 'uz'
+};
 
 export default function GameCard({ game, bet, onBetChange }: Props) {
   const hasBet = bet !== undefined && bet.homeScore !== null && bet.awayScore !== null
+  const getFlagUrl = (name: string) => `https://flagcdn.com/w80/${TEAM_CODES[name] || 'un'}.png`;
 
   return (
-    <div
-      className={`bg-white rounded-xl border shadow-sm p-4 transition-shadow hover:shadow-md ${
-        hasBet ? 'border-green-200' : 'border-gray-200'
-      }`}
-    >
-      {/* Data e local */}
-      <div className="flex justify-between items-center mb-3 text-xs text-gray-400">
-        <span>{formatDate(game.date, game.time)} (Brasília)</span>
-        <span className="text-right hidden sm:block">{game.venue}</span>
+    <div className={`bg-white rounded-xl border-2 shadow-md p-4 mb-3 ${hasBet ? 'border-green-600' : 'border-gray-200'}`}>
+      <div className="flex justify-between items-center mb-4 text-[10px] font-black text-gray-500 uppercase">
+        <span>{game.date} • {game.time}H</span>
+        <span>{game.venue}</span>
       </div>
-
-      {/* Times e inputs */}
-      <div className="flex items-center gap-2">
-        {/* Time da casa */}
-        <div className="flex-1 flex items-center justify-end gap-2 min-w-0">
-          <span className="font-semibold text-gray-900 text-sm truncate">{game.homeTeam}</span>
-          <span className="text-2xl flex-shrink-0">{game.homeFlag}</span>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 flex items-center justify-end gap-2">
+          <span className="font-black text-black text-sm text-right leading-tight">{game.homeTeam}</span>
+          <img src={getFlagUrl(game.homeTeam)} className="w-9 h-6 shadow-sm border rounded-sm object-cover" />
         </div>
-
-        {/* Inputs de placar */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
+        <div className="flex items-center gap-1">
           <input
             type="number"
-            inputMode="numeric"
-            min={0}
-            max={20}
             value={bet?.homeScore ?? ''}
             onChange={e => onBetChange(game.id, 'homeScore', e.target.value)}
-            placeholder="–"
-            className="w-11 h-11 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
+            placeholder="0"
+            className="w-12 h-12 text-center text-xl font-black text-black border-2 border-gray-400 rounded-lg outline-none focus:border-green-600"
           />
-          <span className="text-gray-300 font-bold text-lg">×</span>
+          <span className="font-black text-black">×</span>
           <input
             type="number"
-            inputMode="numeric"
-            min={0}
-            max={20}
             value={bet?.awayScore ?? ''}
             onChange={e => onBetChange(game.id, 'awayScore', e.target.value)}
-            placeholder="–"
-            className="w-11 h-11 text-center text-lg font-bold border-2 border-gray-300 rounded-lg focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-100 transition-colors"
+            placeholder="0"
+            className="w-12 h-12 text-center text-xl font-black text-black border-2 border-gray-400 rounded-lg outline-none focus:border-green-600"
           />
         </div>
-
-        {/* Time visitante */}
-        <div className="flex-1 flex items-center gap-2 min-w-0">
-          <span className="text-2xl flex-shrink-0">{game.awayFlag}</span>
-          <span className="font-semibold text-gray-900 text-sm truncate">{game.awayTeam}</span>
+        <div className="flex-1 flex items-center gap-2">
+          <img src={getFlagUrl(game.awayTeam)} className="w-9 h-6 shadow-sm border rounded-sm object-cover" />
+          <span className="font-black text-black text-sm leading-tight">{game.awayTeam}</span>
         </div>
       </div>
-
-      {/* Local em mobile */}
-      <p className="text-xs text-gray-400 text-center mt-2 sm:hidden">{game.venue}</p>
     </div>
   )
 }

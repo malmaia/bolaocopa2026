@@ -21,245 +21,119 @@ interface Props {
   onSemiChange: (teams: string[]) => void
 }
 
-// ── Team pill picker ───────────────────────────────────────────────────────
+const TEAM_CODES: Record<string, string> = {
+  'México': 'mx', 'África do Sul': 'za', 'Coreia do Sul': 'kr', 'Tchéquia': 'cz',
+  'Canadá': 'ca', 'Gana': 'gh', 'Suécia': 'se', 'Peru': 'pe',
+  'EUA': 'us', 'Nigéria': 'ng', 'Noruega': 'no', 'Arábia Saudita': 'sa',
+  'Brasil': 'br', 'Camarões': 'cm', 'Suíça': 'ch', 'Costa Rica': 'cr',
+  'Argentina': 'ar', 'Argélia': 'dz', 'Polônia': 'pl', 'Chile': 'cl',
+  'França': 'fr', 'Egito': 'eg', 'Austrália': 'au', 'Jamaica': 'jm',
+  'Espanha': 'es', 'Tunísia': 'tn', 'Japão': 'jp', 'Colômbia': 'co',
+  'Inglaterra': 'gb-eng', 'Mali': 'ml', 'Áustria': 'at', 'Equador': 'ec',
+  'Bélgica': 'be', 'Marrocos': 'ma', 'Turquia': 'tr', 'Paraguai': 'py',
+  'Portugal': 'pt', 'Costa do Marfim': 'ci', 'Sérvia': 'rs', 'Panamá': 'pa',
+  'Itália': 'it', 'Senegal': 'sn', 'Dinamarca': 'dk', 'Uruguai': 'uy',
+  'Alemanha': 'de', 'Irã': 'ir', 'Holanda': 'nl', 'Uzbequistão': 'uz'
+};
 
-function TeamPicker({
-  title,
-  description,
-  allTeams,
-  selected,
-  max,
-  onChange,
-}: {
-  title: string
-  description: string
-  allTeams: Team[]
-  selected: string[]
-  max: number
-  onChange: (teams: string[]) => void
-}) {
+const getFlagUrl = (name: string) => `https://flagcdn.com/w40/${TEAM_CODES[name] || 'un'}.png`;
+
+function TeamPicker({ title, description, allTeams, selected, max, onChange }: any) {
   function toggle(teamName: string) {
     if (selected.includes(teamName)) {
-      onChange(selected.filter(t => t !== teamName))
+      onChange(selected.filter((t: any) => t !== teamName))
     } else if (selected.length < max) {
       onChange([...selected, teamName])
     }
   }
 
-  const isComplete = selected.length === max
-
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4">
-      <div className="flex items-start justify-between mb-3 gap-3">
+    <div className="bg-white rounded-xl border-2 border-gray-200 p-4 mb-4">
+      <div className="flex justify-between items-start mb-3">
         <div>
-          <h3 className="font-semibold text-gray-800 text-sm">{title}</h3>
-          <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+          <h4 className="font-black text-black text-sm">{title}</h4>
+          <p className="text-[10px] text-gray-500 font-bold uppercase">{description}</p>
         </div>
-        <span
-          className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
-            isComplete
-              ? 'bg-green-100 text-green-700'
-              : 'bg-amber-100 text-amber-700'
-          }`}
-        >
+        <span className={`text-xs font-black ${selected.length === max ? 'text-green-600' : 'text-orange-500'}`}>
           {selected.length}/{max}
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
-        {allTeams.map(team => {
-          const isSelected = selected.includes(team.name)
-          const atMax = selected.length >= max && !isSelected
-          return (
-            <button
-              key={team.name}
-              onClick={() => toggle(team.name)}
-              disabled={atMax}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
-                isSelected
-                  ? 'bg-green-600 text-white border-green-600 shadow-sm'
-                  : atMax
-                  ? 'bg-gray-50 text-gray-300 border-gray-100 cursor-not-allowed'
-                  : 'bg-white text-gray-700 border-gray-200 hover:border-green-400 hover:text-green-700'
-              }`}
-            >
-              <span className="text-base leading-none">{team.flag}</span>
-              <span>{team.name}</span>
-            </button>
-          )
-        })}
+        {allTeams.map((team: any) => (
+          <button
+            key={team.name}
+            onClick={() => toggle(team.name)}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-black border-2 transition-all ${
+              selected.includes(team.name)
+                ? 'bg-green-600 border-green-700 text-white'
+                : 'bg-gray-50 border-gray-300 text-black hover:border-gray-400'
+            }`}
+          >
+            <img src={getFlagUrl(team.name)} alt="" className="w-5 h-3.5 object-cover rounded-sm" />
+            {team.name}
+          </button>
+        ))}
       </div>
     </div>
   )
 }
 
-// ── Section header ─────────────────────────────────────────────────────────
-
 function SectionTitle({ number, children }: { number: number; children: React.ReactNode }) {
   return (
-    <h2 className="text-base font-bold text-gray-700 mb-4 pb-2 border-b-2 border-green-500 flex items-center gap-2">
-      <span className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold flex-shrink-0">
-        {number}
-      </span>
-      {children}
-    </h2>
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-8 h-8 bg-green-700 text-white rounded-full flex items-center justify-center font-black text-lg">{number}</div>
+      <h3 className="text-xl font-black text-black uppercase">{children}</h3>
+    </div>
   )
 }
 
-// ── Main component ─────────────────────────────────────────────────────────
-
-export default function ClassificadosTab({
-  teamsByGroup,
-  groupPredictions,
-  thirdPlace,
-  oitavas,
-  quartas,
-  semi,
-  onGroupPredictionChange,
-  onThirdPlaceChange,
-  onOitavasChange,
-  onQuartasChange,
-  onSemiChange,
-}: Props) {
-  const groupNames = Object.keys(teamsByGroup)
-
-  const allTeams = Object.values(teamsByGroup)
-    .flat()
-    .reduce<Team[]>((acc, team) => {
-      if (!acc.find(t => t.name === team.name)) acc.push(team)
-      return acc
-    }, [])
-    .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
-
-  const groupsDone = groupNames.filter(
-    g => groupPredictions[g]?.first && groupPredictions[g]?.second
-  ).length
+export default function ClassificadosTab({ teamsByGroup, groupPredictions, thirdPlace, oitavas, quartas, semi, onGroupPredictionChange, onThirdPlaceChange, onOitavasChange, onQuartasChange, onSemiChange }: Props) {
+  const groups = Object.keys(teamsByGroup).sort()
+  const allTeams = Object.values(teamsByGroup).flat().sort((a, b) => a.name.localeCompare(b.name))
 
   return (
-    <div className="space-y-10">
-      {/* ── Seção 1: 1º e 2º de cada grupo ─────────────────────────────── */}
+    <div className="space-y-10 pb-10">
       <section>
-        <div className="flex items-center justify-between mb-4">
-          <SectionTitle number={1}>1º e 2º de cada grupo</SectionTitle>
-        </div>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm text-gray-500">
-            Indique quem termina em cada posição em cada grupo.
-          </p>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${
-            groupsDone === groupNames.length
-              ? 'bg-green-100 text-green-700'
-              : 'bg-amber-100 text-amber-700'
-          }`}>
-            {groupsDone}/{groupNames.length} grupos
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {groupNames.map(group => {
-            const teams = teamsByGroup[group]
-            const pred = groupPredictions[group]
-            const isComplete = !!(pred?.first && pred?.second)
-
-            return (
-              <div
-                key={group}
-                className={`bg-white rounded-xl border p-4 transition-colors ${
-                  isComplete ? 'border-green-200' : 'border-gray-200'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-gray-800 text-sm">{group}</span>
-                  {isComplete && (
-                    <span className="text-green-500 text-sm font-bold">✓</span>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  {(['first', 'second'] as const).map((pos, i) => (
-                    <div key={pos} className="flex items-center gap-2">
-                      <span
-                        className={`text-xs font-bold w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          i === 0
-                            ? 'bg-yellow-100 text-yellow-700'
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
-                      >
-                        {i + 1}º
-                      </span>
-                      <select
-                        value={pred?.[pos] ?? ''}
-                        onChange={e => onGroupPredictionChange(group, pos, e.target.value)}
-                        className="flex-1 text-sm border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
-                      >
-                        <option value="">Selecione...</option>
-                        {teams.map(team => (
-                          <option
-                            key={team.name}
-                            value={team.name}
-                            disabled={
-                              (pos === 'first' && pred?.second === team.name) ||
-                              (pos === 'second' && pred?.first === team.name)
-                            }
-                          >
-                            {team.flag} {team.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  ))}
-                </div>
+        <SectionTitle number={1}>Classificação dos Grupos</SectionTitle>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {groups.map(group => (
+            <div key={group} className="bg-white p-4 rounded-xl border-2 border-gray-200">
+              <h4 className="font-black text-green-800 border-b-2 border-green-100 pb-2 mb-4">{group}</h4>
+              <div className="grid grid-cols-2 gap-2">
+                {(['first', 'second'] as const).map(pos => (
+                  <div key={pos}>
+                    <label className="block text-[10px] font-black text-gray-500 uppercase mb-1">
+                      {pos === 'first' ? '1º Colocado' : '2º Colocado'}
+                    </label>
+                    <select
+                      value={groupPredictions[group]?.[pos] ?? ''}
+                      onChange={e => onGroupPredictionChange(group, pos, e.target.value)}
+                      className="w-full p-2 border-2 border-gray-300 rounded-lg text-xs font-black text-black bg-white focus:border-green-600 outline-none"
+                    >
+                      <option value="">--</option>
+                      {teamsByGroup[group].map(t => (
+                        <option key={t.name} value={t.name}>{t.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ── Seção 2: 8 terceiros classificados ──────────────────────────── */}
       <section>
-        <SectionTitle number={2}>8 terceiros classificados</SectionTitle>
-        <p className="text-sm text-gray-500 mb-4">
-          Dos 12 grupos, 8 terceiros colocados avançam. Quais você aposta que passam?
-        </p>
-        <TeamPicker
-          title="Selecione as 8 seleções 3ªs colocadas que avançam"
-          description="Clique para selecionar, clique novamente para remover"
-          allTeams={allTeams}
-          selected={thirdPlace}
-          max={8}
-          onChange={onThirdPlaceChange}
-        />
+        <SectionTitle number={2}>Melhores 3º colocados</SectionTitle>
+        <TeamPicker title="Selecione as 8 seleções" description="Os 8 melhores terceiros" allTeams={allTeams} selected={thirdPlace} max={8} onChange={onThirdPlaceChange} />
       </section>
 
-      {/* ── Seção 3: Fase eliminatória ───────────────────────────────────── */}
       <section>
-        <SectionTitle number={3}>Fase eliminatória</SectionTitle>
-        <p className="text-sm text-gray-500 mb-4">
-          Indique quais seleções chegam a cada fase do mata-mata.
-        </p>
+        <SectionTitle number={3}>Caminho do Título</SectionTitle>
         <div className="space-y-4">
-          <TeamPicker
-            title="Oitavas de final — 16 seleções"
-            description="Quem você aposta que chega às oitavas?"
-            allTeams={allTeams}
-            selected={oitavas}
-            max={16}
-            onChange={onOitavasChange}
-          />
-          <TeamPicker
-            title="Quartas de final — 8 seleções"
-            description="Quem você aposta que chega às quartas?"
-            allTeams={allTeams}
-            selected={quartas}
-            max={8}
-            onChange={onQuartasChange}
-          />
-          <TeamPicker
-            title="Semifinalistas — 4 seleções"
-            description="Quem você aposta que chega às semifinais?"
-            allTeams={allTeams}
-            selected={semi}
-            max={4}
-            onChange={onSemiChange}
-          />
+          <TeamPicker title="Oitavas de Final" description="16 seleções" allTeams={allTeams} selected={oitavas} max={16} onChange={onOitavasChange} />
+          <TeamPicker title="Quartas de Final" description="8 seleções" allTeams={allTeams} selected={quartas} max={8} onChange={onQuartasChange} />
+          <TeamPicker title="Semifinais" description="4 seleções" allTeams={allTeams} selected={semi} max={4} onChange={onSemiChange} />
         </div>
       </section>
     </div>

@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+/* Garante que todo input preenchido tenha texto preto e forte */
+input {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Deixa o texto que você ainda não digitou (placeholder) um pouco mais visível */
+input::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1;
+}
